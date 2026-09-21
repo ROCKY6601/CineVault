@@ -29,14 +29,25 @@ jobs:
             find . -not -path './.git/*' | head -50
             exit 1
           fi
-          cd "$(dirname "$FILE")"
+          PROJ="$(cd "$(dirname "$FILE")" && pwd)"
+          if [ ! -f "$PROJ/app/google-services.json" ]; then
+            GS=$(find "$ROOT" -name google-services.json -not -path '*/.git/*' | head -n 1)
+            if [ -n "$GS" ]; then cp "$GS" "$PROJ/app/google-services.json"; fi
+          fi
+          if [ ! -f "$PROJ/app/google-services.json" ]; then
+            echo "google-services.json nahi mili. Isse repo ke root me upload karo."
+            exit 1
+          fi
+          PKG=$(python3 -c "import json;print(json.load(open('$PROJ/app/google-services.json'))['client'][0]['client_info']['android_client_info']['package_name'])")
+          echo "Firebase package name: $PKG"
+          cd "$PROJ"
           set +e
-          gradle assembleDebug --no-daemon --console=plain > "$ROOT/build.log" 2>&1
+          gradle assembleDebug -PappId="$PKG" --no-daemon --console=plain > "$ROOT/build.log" 2>&1
           CODE=$?
           set -e
           if [ $CODE -ne 0 ]; then
             echo "=========== ASLI ERROR ==========="
-            grep -E "^e: |What went wrong|Execution failed|error:|Could not" -A3 "$ROOT/build.log" | head -40
+            grep -E "^e: |What went wrong|Execution failed|error:|Could not|google-services" -A3 "$ROOT/build.log" | head -50
             exit 1
           fi
           mkdir -p "$ROOT/out"
