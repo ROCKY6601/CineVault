@@ -31,11 +31,13 @@ jobs:
           fi
           PROJ="$(cd "$(dirname "$FILE")" && pwd)"
           if [ ! -f "$PROJ/app/google-services.json" ]; then
-            GS=$(find "$ROOT" -name google-services.json -not -path '*/.git/*' | head -n 1)
+            GS=$(find "$ROOT" /tmp/src -iname 'google-services*.json' -not -path '*/.git/*' 2>/dev/null | head -n 1)
             if [ -n "$GS" ]; then cp "$GS" "$PROJ/app/google-services.json"; fi
           fi
           if [ ! -f "$PROJ/app/google-services.json" ]; then
-            echo "google-services.json nahi mili. Isse repo ke root me upload karo."
+            echo "google-services.json nahi mili. Repo me ye files hain:"
+            find "$ROOT" -not -path '*/.git/*' -type f | head -30
+            echo "Firebase se google-services.json download karke repo ke root me upload karo."
             exit 1
           fi
           PKG=$(python3 -c "import json;print(json.load(open('$PROJ/app/google-services.json'))['client'][0]['client_info']['android_client_info']['package_name'])")
