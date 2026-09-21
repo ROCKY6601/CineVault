@@ -17,15 +17,24 @@ jobs:
           gradle-version: 8.7
       - name: Build
         run: |
+          ROOT="$PWD"
           FILE=$(find . -name settings.gradle.kts -not -path './.git/*' | head -n 1)
+          if [ -z "$FILE" ] && ls ./*.zip >/dev/null 2>&1; then
+            mkdir -p /tmp/src
+            for z in ./*.zip; do unzip -oq "$z" -d /tmp/src; done
+            FILE=$(find /tmp/src -name settings.gradle.kts | head -n 1)
+          fi
           if [ -z "$FILE" ]; then
-            echo "settings.gradle.kts repo me nahi mili. Files:"
+            echo "settings.gradle.kts nahi mili. Repo files:"
             find . -not -path './.git/*' | head -50
             exit 1
           fi
+          echo "Building in $(dirname "$FILE")"
           cd "$(dirname "$FILE")"
-          gradle assembleDebug --no-daemon
+          gradle assembleDebug --no-daemon --stacktrace
+          mkdir -p "$ROOT/out"
+          find . -name app-debug.apk -exec cp {} "$ROOT/out/" \;
       - uses: actions/upload-artifact@v4
         with:
           name: CineVault-debug-apk
-          path: "**/build/outputs/apk/debug/app-debug.apk"
+          path: out/app-debug.apk
