@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "411044706136",
+    "firebase_url": "https://movies-nuxus-default-rtdb.firebaseio.com",
+    "project_id": "movies-nuxus",
+    "storage_bucket": "movies-nuxus.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:411044706136:android:b52332d0d0a7e509ce572d",
+        "android_client_info": {
+          "package_name": "com.nuxus.movies"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCD-4-lb667uvGdkD24JssKd9We3BhNE4c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
