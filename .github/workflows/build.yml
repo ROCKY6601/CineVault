@@ -29,12 +29,20 @@ jobs:
             find . -not -path './.git/*' | head -50
             exit 1
           fi
-          echo "Building in $(dirname "$FILE")"
           cd "$(dirname "$FILE")"
-          gradle assembleDebug --no-daemon --stacktrace
+          set +e
+          gradle assembleDebug --no-daemon --console=plain > "$ROOT/build.log" 2>&1
+          CODE=$?
+          set -e
+          if [ $CODE -ne 0 ]; then
+            echo "=========== ASLI ERROR ==========="
+            grep -E "^e: |What went wrong|Execution failed|error:|Could not" -A3 "$ROOT/build.log" | head -40
+            exit 1
+          fi
           mkdir -p "$ROOT/out"
           find . -name app-debug.apk -exec cp {} "$ROOT/out/" \;
       - uses: actions/upload-artifact@v4
         with:
           name: CineVault-debug-apk
           path: out/app-debug.apk
+          
